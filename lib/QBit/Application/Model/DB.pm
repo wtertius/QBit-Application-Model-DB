@@ -98,7 +98,7 @@ sub quote {
     my ($res) = $self->_sub_with_connected_dbh(
         sub {
             my ($self, $name) = @_;
-            return $self->{'__DBH__'}->quote($name);
+            return $self->{'__DBH__'}{$$}->quote($name);
         },
         [$self, $name]
     );
@@ -112,7 +112,7 @@ sub quote_identifier {
     my ($res) = $self->_sub_with_connected_dbh(
         sub {
             my ($self, $name) = @_;
-            return $self->{'__DBH__'}->quote_identifier($name);
+            return $self->{'__DBH__'}{$$}->quote_identifier($name);
         },
         [$self, $name]
     );
@@ -215,9 +215,9 @@ sub _do {
             my ($self, $sql, @params) = @_;
 
             my $err_code;
-            return $self->{'__DBH__'}->do($sql, undef, @params)
-              || ($err_code = $self->{'__DBH__'}->err())
-              && throw Exception::DB $self->{'__DBH__'}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
+            return $self->{'__DBH__'}{$$}->do($sql, undef, @params)
+              || ($err_code = $self->{'__DBH__'}{$$}->err())
+              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
         },
         \@_
@@ -239,30 +239,30 @@ sub _get_all {
 
             my $err_code;
             $self->timelog->start(gettext('DBH prepare'));
-            my $sth = $self->{'__DBH__'}->prepare($sql)
-              || ($err_code = $self->{'__DBH__'}->err())
-              && throw Exception::DB $self->{'__DBH__'}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
+            my $sth = $self->{'__DBH__'}{$$}->prepare($sql)
+              || ($err_code = $self->{'__DBH__'}{$$}->err())
+              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
 
             $self->timelog->finish();
 
             $self->timelog->start(gettext('STH execute'));
             $sth->execute(@params)
-              || ($err_code = $self->{'__DBH__'}->err())
+              || ($err_code = $self->{'__DBH__'}{$$}->err())
               && throw Exception::DB $sth->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
             $self->timelog->finish();
 
             $self->timelog->start(gettext('STH fetch_all'));
             my $data = $sth->fetchall_arrayref({})
-              || ($err_code = $self->{'__DBH__'}->err())
+              || ($err_code = $self->{'__DBH__'}{$$}->err())
               && throw Exception::DB $sth->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
             $self->timelog->finish();
 
             $self->timelog->start(gettext('STH finish'));
             $sth->finish()
-              || ($err_code = $self->{'__DBH__'}->err())
+              || ($err_code = $self->{'__DBH__'}{$$}->err())
               && throw Exception::DB $sth->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
             $self->timelog->finish();
@@ -336,11 +336,11 @@ sub _sub_with_connected_dbh {
 
         if (
             $try < 3
-            && (!exists($self->{'__DBH__'})
-                || $self->_is_connection_error($exception->{'errorcode'} || $self->{'__DBH__'}->err()))
+            && (!exists($self->{'__DBH__'}{$$})
+                || $self->_is_connection_error($exception->{'errorcode'} || $self->{'__DBH__'}{$$}->err()))
            )
         {
-            delete($self->{'__DBH__'});
+            delete($self->{'__DBH__'}{$$}) if exists($self->{'__DBH__'}{$$});
 
             if ($self->{'__SAVEPOINTS__'}) {
                 throw $exception;
@@ -358,7 +358,7 @@ sub _sub_with_connected_dbh {
 sub DESTROY {
     my ($self) = @_;
 
-    $self->{'__DBH__'}->disconnect() if exists($self->{'__DBH__'});
+    $self->{'__DBH__'}{$$}->disconnect() if exists($self->{'__DBH__'}{$$});
 }
 
 TRUE;
