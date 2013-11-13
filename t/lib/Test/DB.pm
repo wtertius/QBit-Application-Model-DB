@@ -5,8 +5,9 @@ use qbit;
 use base qw(QBit::Application::Model::DB);
 
 use QBit::Application::Model::DB::Filter;
-use QBit::Application::Model::DB::mysql::Table;
+use Test::DB::Table;
 use QBit::Application::Model::DB::Query;
+use QBit::Application::Model::DB::Field;
 
 __PACKAGE__->meta(
     tables => {
@@ -14,41 +15,24 @@ __PACKAGE__->meta(
             fields => [
                 {
                     name          => 'field1',
-                    type          => 'INT',
-                    unsigned      => 1,
-                    autoincrement => 1,
-                    not_null      => 1,
-                    length        => 10,
-                    zerofill      => 1
+                    type          => 'TYPE',
                 },
-                {name => 'field2', type => 'INT'},
+                {name => 'field2', type => 'TYPE'},
                 {
                     name     => 'field3',
-                    type     => 'FLOAT',
-                    unsigned => 1,
-                    not_null => 1,
-                    length   => 10,
-                    decimals => 5,
-                    zerofill => 1
+                    type     => 'TYPE',
                 },
-                {name => 'field4', type => 'FLOAT'},
-                {name => 'field5', type => 'BINARY', length => 10, not_null => 1},
-                {name => 'field6', type => 'BINARY'},
+                {name => 'field4', type => 'TYPE'},
+                {name => 'field5', type => 'TYPE'},
+                {name => 'field6', type => 'TYPE'},
                 {
                     name      => 'field7',
-                    type      => 'VARCHAR',
-                    length    => 200,
-                    charset   => 'utf8',
-                    collation => 'utf8_general_ci',
-                    not_null  => 1
+                    type      => 'TYPE',
                 },
-                {name => 'field8', type => 'VARCHAR'},
+                {name => 'field8', type => 'TYPE'},
                 {
                     name      => 'field9',
                     type      => 'TEXT',
-                    charset   => 'utf8',
-                    collation => 'utf8_general_ci',
-                    not_null  => 1
                 },
                 {name => 'field10', type => 'TEXT'},
             ],
@@ -58,10 +42,10 @@ __PACKAGE__->meta(
 
         table2 => {
             fields => [
-                {name => 'field1', type => 'INT',      unsigned => 1, autoincrement => 1, not_null => 1},
-                {name => 'field2', type => 'DATETIME', not_null => 1},
+                {name => 'field1', type => 'TYPE'},
+                {name => 'field2', type => 'TYPE',},
                 {name => 't1_f2'},
-                {name => 'ml_field', type => 'VARCHAR', length => 100, i18n => 1}
+                {name => 'ml_field', type => 'TYPE', i18n => 1}
             ],
             primary_key  => [qw(field1 field2)],
             foreign_keys => [[['t1_f2'] => table1 => ['field2']]]
@@ -69,16 +53,16 @@ __PACKAGE__->meta(
 
         qtable1 => {
             fields => [
-                {name => 'id',       type => 'INT'},
-                {name => 'field',    type => 'CHAR'},
-                {name => 'value',    type => 'INT'},
-                {name => 'ml_field', type => 'VARCHAR', length => 100, i18n => 1}
+                {name => 'id',       type => 'TYPE'},
+                {name => 'field',    type => 'TYPE'},
+                {name => 'value',    type => 'TYPE'},
+                {name => 'ml_field', type => 'TYPE', i18n => 1}
             ],
             primary_key => [qw(id)],
         },
 
         qtable2 => {
-            fields       => [{name          => 'parent_id'}, {name => 'field', type => 'CHAR'}],
+            fields       => [{name          => 'parent_id'}, {name => 'field', type => 'TYPE'}],
             foreign_keys => [[['parent_id'] => qtable1       => ['id']]]
         }
     }
@@ -93,7 +77,7 @@ sub filter {
 sub _get_table_class {
     my ($self, %opts) = @_;
 
-    return 'QBit::Application::Model::DB::mysql::Table';
+    return 'Test::DB::Table';
 }
 
 sub query {
