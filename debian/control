@@ -2,7 +2,7 @@ Source: libqbit-application-model-db-perl
 Section: perl
 Priority: extra
 Maintainer: Sergei Svistunov <sergei-svistunov@yandex.ru>
-Build-Depends: debhelper (>= 8.0.0), perl, libqbit-perl, libqbit-class-perl, libqbit-application-perl, libdbi-perl
+Build-Depends: debhelper (>= 8.0.0), perl, libqbit-perl, libqbit-class-perl, libqbit-application-perl, libdbi-perl, libdbd-mock-perl
 Standards-Version: 3.9.4
 
 Package: libqbit-application-model-db-perl
