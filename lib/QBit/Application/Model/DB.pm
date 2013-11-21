@@ -49,44 +49,48 @@ sub init {
 
     $self->SUPER::init();
 
-    my $meta = $self->get_all_meta();
+    unless (package_stash(ref($self))->{'__METHODS_CREATED__'}) {
+        my $meta = $self->get_all_meta();
 
-    my %tables;
-    foreach my $table_name (keys(%{$meta->{'tables'} || {}})) {
-        my %table = %{$meta->{'tables'}{$table_name}};
+        my %tables;
+        foreach my $table_name (keys(%{$meta->{'tables'} || {}})) {
+            my %table = %{$meta->{'tables'}{$table_name}};
 
-        $table{'class'} = $self->_get_table_class(type => $table{'type'});
-        $table{'fields'}       = [$table{'class'}->default_fields(%table),       @{$table{'fields'}       || []}];
-        $table{'indexes'}      = [$table{'class'}->default_indexes(%table),      @{$table{'indexes'}      || []}];
-        $table{'foreign_keys'} = [$table{'class'}->default_foreign_keys(%table), @{$table{'foreign_keys'} || []}];
-        $table{'primary_key'}  = $table{'class'}->default_primary_key(%table)
-          unless exists($table{'primary_key'});
+            $table{'class'} = $self->_get_table_class(type => $table{'type'});
+            $table{'fields'}       = [$table{'class'}->default_fields(%table),       @{$table{'fields'}       || []}];
+            $table{'indexes'}      = [$table{'class'}->default_indexes(%table),      @{$table{'indexes'}      || []}];
+            $table{'foreign_keys'} = [$table{'class'}->default_foreign_keys(%table), @{$table{'foreign_keys'} || []}];
+            $table{'primary_key'}  = $table{'class'}->default_primary_key(%table)
+              unless exists($table{'primary_key'});
 
-        $tables{$table_name} = \%table;
-    }
+            $tables{$table_name} = \%table;
+        }
 
-    $self->{'__TABLE_TREE_LEVEL__'}{$_} = $self->_table_tree_level(\%tables, $_, 0) foreach keys(%tables);
-    $self->{'__TABLES__'} = {};
+        $self->{'__TABLE_TREE_LEVEL__'}{$_} = $self->_table_tree_level(\%tables, $_, 0) foreach keys(%tables);
+        $self->{'__TABLES__'} = {};
 
-    foreach my $table_name ($self->_sorted_tables(keys(%tables))) {
-        throw gettext('Cannot create table object, "%s" is reserved', $table_name)
-          if $self->can($table_name);
-        {
-            no strict 'refs';
-            my $db_self = $self;
-            *{__PACKAGE__ . "::$table_name"} = sub {
-                my ($self) = @_;
+        foreach my $table_name ($self->_sorted_tables(keys(%tables))) {
+            throw gettext('Cannot create table object, "%s" is reserved', $table_name)
+              if $self->can($table_name);
+            {
+                no strict 'refs';
+                my $db_self = $self;
+                *{__PACKAGE__ . "::$table_name"} = sub {
+                    my ($self) = @_;
 
-                $self->{'__TABLES__'}{$table_name} = $tables{$table_name}->{'class'}->new(
-                    %{$tables{$table_name}},
-                    name => $table_name,
-                    db   => $self,
-                ) unless exists($self->{'__TABLES__'}{$table_name});
+                    $self->{'__TABLES__'}{$table_name} = $tables{$table_name}->{'class'}->new(
+                        %{$tables{$table_name}},
+                        name => $table_name,
+                        db   => $self,
+                    ) unless exists($self->{'__TABLES__'}{$table_name});
 
-                return $self->{'__TABLES__'}{$table_name};
+                    return $self->{'__TABLES__'}{$table_name};
+                };
             };
-        };
-        $self->$table_name if $self->get_option('preload_accessors');
+            $self->$table_name if $self->get_option('preload_accessors');
+        }
+
+        package_stash(ref($self))->{'__METHODS_CREATED__'} = TRUE;
     }
 
     $self->{'__SAVEPOINTS__'} = 0;
@@ -217,7 +221,9 @@ sub _do {
             my $err_code;
             return $self->{'__DBH__'}{$$}->do($sql, undef, @params)
               || ($err_code = $self->{'__DBH__'}{$$}->err())
-              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
+              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr()
+              . " ($err_code)\n"
+              . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
         },
         \@_
@@ -241,7 +247,9 @@ sub _get_all {
             $self->timelog->start(gettext('DBH prepare'));
             my $sth = $self->{'__DBH__'}{$$}->prepare($sql)
               || ($err_code = $self->{'__DBH__'}{$$}->err())
-              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr() . " ($err_code)\n" . $self->_log_sql($sql, \@params),
+              && throw Exception::DB $self->{'__DBH__'}{$$}->errstr()
+              . " ($err_code)\n"
+              . $self->_log_sql($sql, \@params),
               errorcode => $err_code;
 
             $self->timelog->finish();
