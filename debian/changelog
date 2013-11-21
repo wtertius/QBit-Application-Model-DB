@@ -1,3 +1,15 @@
+libqbit-application-model-db-perl (0.003) raring; urgency=low
+
+  * Fixed build depends
+
+  * Create accessors once
+
+  * Test::DB::Table
+
+  * qbit-application-model-db.t
+
+ -- Sergei Svistunov <sergei-svistunov@yandex.ru>  Thu, 21 Nov 2013 16:48:32 +0400
+
 libqbit-application-model-db-perl (0.002) raring; urgency=low
 
   * Fixed fork error: Each child must have its own connection
