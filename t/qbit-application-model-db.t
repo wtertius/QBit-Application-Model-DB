@@ -1,6 +1,6 @@
 use qbit;
 use lib 't/lib';
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::Differences;
 
 use TestAppDB;
@@ -68,6 +68,21 @@ is_deeply(
     [OR => [[AND => [[a => '=' => \1]]], [AND => [[b => '=' => \[2, 3]]]]]],
     'Check filter: and + or'
 );
+
+{
+    my $filter = $app->db->filter({a => 1});
+
+    my $second_filter = $app->db->filter({b => 2});
+    $second_filter->or({c => 3});
+
+    $filter->and($second_filter);
+
+    is_deeply(
+        $filter->expression(),
+        ['AND', [['a', '=', \1], ['OR', [['AND', [['b', '=', \2]]], ['AND', [['c', '=', \3]]]]]]],
+        'Check filter: A = 1 and (B = 2 or C = 3)'
+    );
+}
 
 is_deeply(
     $app->db->filter()->and({a => 1})->or_not({b => [2, 3]})->expression(),

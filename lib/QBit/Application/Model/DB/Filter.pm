@@ -64,7 +64,10 @@ sub _add {
 
     if (exists($self->{'__FILTER__'})) {
         if ($self->{'__FILTER__'}[0] eq $type) {
-            push(@{$self->{'__FILTER__'}[1]}, $not ? {NOT => [$filter]} : @{$filter->[1]});
+            push(
+                @{$self->{'__FILTER__'}[1]},
+                $not ? {NOT => [$filter]} : ($filter->[0] eq $type ? @{$filter->[1]} : $filter)
+            );
         } else {
             $self->{'__FILTER__'} = [$type => [$self->{'__FILTER__'}, $not ? {NOT => [$filter]} : $filter]];
         }
