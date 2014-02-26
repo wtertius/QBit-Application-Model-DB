@@ -1,3 +1,11 @@
+libqbit-application-model-db-perl (0.004) raring; urgency=low
+
+  * fix test
+
+  * fix filters
+
+ -- Sergei Svistunov <sergei-svistunov@yandex.ru>  Wed, 26 Feb 2014 17:09:23 +0400
+
 libqbit-application-model-db-perl (0.003) raring; urgency=low
 
   * Fixed build depends
