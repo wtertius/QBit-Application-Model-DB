@@ -70,22 +70,17 @@ is_deeply(
 );
 
 {
-    my $filter_1 = $app->db->filter({a => 1});
+    my $filter = $app->db->filter({a => 1});
 
-    my $filter_2 = $app->db->filter();
+    my $second_filter = $app->db->filter({b => 2});
+    $second_filter->or({c => 3});
 
-    my $filter_3 = $app->db->filter({b => 2});
-    $filter_2->or($filter_3);
-
-    $filter_3 = $app->db->filter({c => 3});
-    $filter_2->or($filter_3);
-
-    $filter_1->and($filter_2);
+    $filter->and($second_filter);
 
     is_deeply(
-        $filter_1->expression(),
+        $filter->expression(),
         ['AND', [['a', '=', \1], ['OR', [['AND', [['b', '=', \2]]], ['AND', [['c', '=', \3]]]]]]],
-        'Check filter: filter_1 and (filter_2 or filter_3)'
+        'Check filter: A = 1 and (B = 2 or C = 3)'
     );
 }
 
