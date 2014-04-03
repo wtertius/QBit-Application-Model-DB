@@ -366,7 +366,7 @@ sub _sub_with_connected_dbh {
 sub DESTROY {
     my ($self) = @_;
 
-    $self->{'__DBH__'}{$$}->disconnect() if exists($self->{'__DBH__'}{$$});
+    $self->{'__DBH__'}{$$}->disconnect() if defined($self->{'__DBH__'}{$$});
 }
 
 TRUE;
