@@ -363,10 +363,4 @@ sub _sub_with_connected_dbh {
     return @res;
 }
 
-sub DESTROY {
-    my ($self) = @_;
-
-    $self->{'__DBH__'}{$$}->disconnect() if exists($self->{'__DBH__'}{$$});
-}
-
 TRUE;
