@@ -1,6 +1,6 @@
 use qbit;
 use lib 't/lib';
-use Test::More tests => 24;
+use Test::More tests => 26;
 use Test::Differences;
 
 use TestAppDB;
@@ -130,7 +130,7 @@ my $query = $app->db->query->select(
     alias  => 'qt2',
     fields => {q2value => 'field'},
     filter => [field => '>=' => \10]
-  )->calc_rows(TRUE)->group_by(qw(id expr))->order_by('id', ['cmp1'], ['cmp2', TRUE])->limit(10, 20);
+  )->calc_rows(TRUE)->group_by(qw(id expr ml_field))->order_by('id', ['cmp1'], ['cmp2', TRUE])->limit(10, 20);
 
 my ($sql, @data) = $query->get_sql_with_data();
 
@@ -175,7 +175,7 @@ WHERE (
 AND (
     "qt2"."field" >= '10'
 )
-GROUP BY "id", "expr"
+GROUP BY "id", "expr", "ml_field"
 ORDER BY "id", "cmp1", "cmp2" DESC
 LIMIT 10, 20},
     'Check query SQL'
@@ -238,7 +238,7 @@ WHERE (
 AND (
     "qt2"."field" >= '10'
 )
-GROUP BY "id", "expr"
+GROUP BY "id", "expr", "ml_field"
 ORDER BY "id", "cmp1", "cmp2" DESC
 LIMIT 10, 20},
     'Check all languages query SQL'
@@ -377,5 +377,25 @@ is_deeply(
     $app->db->filter->or({field1 => 10, field2 => '2000-01-01'})->or({field1 => 20, field2 => '2000-01-01'}),
     'Check _pkeys_or_filter_to_filter: pk has 2 fields, param array of hashes'
 );
+
+eval {$app->db->table1->get_all(fields => ['field1'], filter => {field2 => '2014-05-20'}, group_by => ['field2'],);};
+is(
+    ref($@) ? $@->message() : $@,
+    gettext("You've forgotten grouping function for query field(s) '%s'.", 'field1'),
+    'Grouping query with simple field dies.'
+  );
+
+eval {
+    $app->db->table1->get_all(
+        fields   => {'field1' => ''},
+        filter   => {field2   => '2014-05-20'},
+        group_by => ['field2'],
+    );
+};
+is(
+    ref($@) ? $@->message() : $@,
+    gettext("You've forgotten grouping function for query field(s) '%s'.", 'field1'),
+    'Grouping query with simple field dies.'
+  );
 
 $app->post_run();
