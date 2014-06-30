@@ -1,3 +1,11 @@
+libqbit-application-model-db-perl (0.006) raring; urgency=low
+
+  * Add tests for exception on simple fields with group by.
+
+  * Throw exception on not grouping fields with group_by.
+
+ -- Sergei Svistunov <sergei-svistunov@yandex.ru>  Mon, 30 Jun 2014 17:01:35 +0400
+
 libqbit-application-model-db-perl (0.005) raring; urgency=low
 
   * Delete DB DESTROY method.
