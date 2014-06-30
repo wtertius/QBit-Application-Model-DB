@@ -93,6 +93,14 @@ sub right_join {
 sub group_by {
     my ($self, @group_by) = @_;
 
+    my %group_by = map {$_ => TRUE} @group_by;
+    my %fields = map {%{$_->{'fields'}}} @{$self->{'__TABLES__'}};
+    my @not_grouping_fields = grep {!$fields{$_} && !$group_by{$_}} keys(%fields);
+
+    throw Exception::BadArguments gettext("You've forgotten grouping function for query field(s) '%s'.",
+        CORE::join(', ', @not_grouping_fields))
+      if @not_grouping_fields;
+
     $self->{'__GROUP_BY__'} = \@group_by;
 
     return $self;
@@ -210,7 +218,7 @@ sub get_sql_with_data {
         push(@sql_data, @vt_data);
     } else {
         $sql .=
-            ' '
+            ' ' 
           . $self->quote_identifier($select_query_table->{'table'}->name)
           . (
             exists($select_query_table->{'alias'})
@@ -229,7 +237,7 @@ sub get_sql_with_data {
             push(@sql_data, @vt_data);
         } else {
             $sql .=
-                ' '
+                ' ' 
               . $self->quote_identifier($table->{'table'}->name)
               . (
                 exists($table->{'alias'})
