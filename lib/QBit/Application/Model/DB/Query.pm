@@ -1,3 +1,6 @@
+package Exception::DB::NoFieldsAvailable;
+use base qw(Exception::DB);
+
 package QBit::Application::Model::DB::Query;
 
 use qbit;
@@ -205,6 +208,10 @@ sub get_sql_with_data {
               if exists($all_fields{$field});
             $all_fields{$field} = [$self->_field_to_sql($field, $table->{'fields'}{$field}, $table)];
         }
+    }
+
+    unless(%all_fields) {
+        throw Exception::DB::NoFieldsAvailable;
     }
 
     $sql .= "\n$offset    " . CORE::join(",\n$offset    ", map {@{$all_fields{$_}}} sort keys(%all_fields));
