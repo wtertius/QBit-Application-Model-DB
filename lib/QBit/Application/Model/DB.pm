@@ -292,8 +292,6 @@ sub _log_sql {
     my @params = @{$params || []};
 
     foreach my $param (@params) {
-        $param =~ s/\n/\\n/g;
-
         substr($param, MAX_SQL_LOG_PARAM_LENGTH) = '...' if length($param) > MAX_SQL_LOG_PARAM_LENGTH;
     }
 
