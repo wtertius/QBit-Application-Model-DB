@@ -12,7 +12,8 @@ use base qw(QBit::Application::Model);
 
 use DBI;
 
-our $DEBUG = FALSE;
+our $MAX_SQL_LOG_PARAM_LENGTH = 300;
+our $DEBUG                    = FALSE;
 
 __PACKAGE__->abstract_methods(qw(query filter _get_table_object _create_sql_db _connect _is_connection_error));
 
@@ -288,7 +289,13 @@ sub _get_all {
 sub _log_sql {
     my ($self, $sql, $params) = @_;
 
-    $sql =~ s/\?/$self->quote($_)/e foreach @{$params || []};
+    my @params = @{$params || []};
+
+    foreach my $param (@params) {
+        substr($param, $MAX_SQL_LOG_PARAM_LENGTH) = '...' if length($param) > $MAX_SQL_LOG_PARAM_LENGTH;
+    }
+
+    $sql =~ s/\?/$self->quote($_)/e foreach @params;
 
     l $sql if $DEBUG;
 
