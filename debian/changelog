@@ -1,3 +1,23 @@
+libtertiusqbit-application-model-db-perl (0.009) raring; urgency=low
+
+  * Rename debian package.
+
+ -- Dmitry Lukiyanchuk <tertius@yandex-team.ru>  Fri, 17 Apr 2015 17:29:36 +0300
+
+libtertiusqbit-application-model-db-perl (0.008) raring; urgency=low
+
+  * Version 0.008
+
+  * Fork debian package.
+
+  * Use our for max sql log param length and reduce it to 300 symbols.
+
+  * Don't escape \n. $self->quote() does this already.
+
+  * Limit sql param length in log.
+
+ -- Dmitry Lukiyanchuk <tertius@yandex-team.ru>  Fri, 17 Apr 2015 13:38:39 +0300
+
 libtertiusqbit-application-model-db-perl (0.007) raring; urgency=low
 
   * Exception::DB::NoFieldsAvailable
