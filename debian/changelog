@@ -1,3 +1,9 @@
+libtertiusqbit-application-model-db-perl (0.011) raring; urgency=low
+
+  * Fix _log_sql for undefined param.
+
+ -- Dmitry Lukiyanchuk <tertius@yandex-team.ru>  Wed, 22 Apr 2015 16:30:05 +0300
+
 libtertiusqbit-application-model-db-perl (0.010) raring; urgency=low
 
   * No changes
