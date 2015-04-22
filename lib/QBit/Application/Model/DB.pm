@@ -292,7 +292,8 @@ sub _log_sql {
     my @params = @{$params || []};
 
     foreach my $param (@params) {
-        substr($param, $MAX_SQL_LOG_PARAM_LENGTH) = '...' if length($param) > $MAX_SQL_LOG_PARAM_LENGTH;
+        substr($param, $MAX_SQL_LOG_PARAM_LENGTH) = '...'
+          if defined($param) && (length($param) > $MAX_SQL_LOG_PARAM_LENGTH);
     }
 
     $sql =~ s/\?/$self->quote($_)/e foreach @params;
