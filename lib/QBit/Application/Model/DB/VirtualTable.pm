@@ -4,7 +4,7 @@ use qbit;
 
 use base qw(QBit::Application::Model::DB::Class);
 
-use Sys::Hostname;
+use Sys::Hostname qw();
 
 __PACKAGE__->mk_ro_accessors(qw(query name));
 
@@ -20,7 +20,7 @@ sub init {
           && blessed($self->query)
           && $self->query->isa('QBit::Application::Model::DB::Query');
 
-    $self->{'name'} ||= join('_', 'vt', hostname, $$, $COUNTER++);
+    $self->{'name'} ||= join('_', 'vt', Sys::Hostname::hostname, $$, $COUNTER++);
 }
 
 sub fields {
