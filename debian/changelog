@@ -1,3 +1,9 @@
+libtertiusqbit-application-model-db-perl (0.012) raring; urgency=low
+
+  * Use full path to hostname sub for VirtualTable default name.
+
+ -- Dmitry Lukiyanchuk <tertius@yandex-team.ru>  Thu, 07 May 2015 03:25:59 +0300
+
 libtertiusqbit-application-model-db-perl (0.011) raring; urgency=low
 
   * Fix _log_sql for undefined param.
