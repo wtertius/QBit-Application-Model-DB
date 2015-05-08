@@ -356,6 +356,8 @@ sub _sub_with_connected_dbh {
                 || $self->_is_connection_error($exception->{'errorcode'} || $self->{'__DBH__'}{$$}->err()))
            )
         {
+            $self->_before_reconnection();
+
             delete($self->{'__DBH__'}{$$}) if exists($self->{'__DBH__'}{$$});
 
             if ($self->{'__SAVEPOINTS__'}) {
